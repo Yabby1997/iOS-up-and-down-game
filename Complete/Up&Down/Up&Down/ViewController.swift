@@ -5,6 +5,7 @@
 //  Created by Seunghun Yang on 2021/10/26.
 //
 
+import Combine
 import UIKit
 
 import SnapKit
@@ -23,6 +24,7 @@ class ViewController: UIViewController {
         $0.maximumValue = 100
         $0.minimumValue = 0
         $0.value = 50
+        $0.addTarget(self, action: #selector(sliderValueDidChange), for: .valueChanged)
     }
     
     private lazy var answerLabel = UILabel().then {
@@ -31,11 +33,29 @@ class ViewController: UIViewController {
         $0.text = "오답"
     }
     
+    // MARK: - Private Properteis
+    
+    private let viewModel: ViewModel
+    
+    private var cancellables: Set<AnyCancellable> = []
+    
+    // MARK: - Initializers
+    
+    init(viewModel: ViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Lifecycle Methods
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.configureUI()
+        self.bindUI()
     }
 
     // MARK: - Helpers
@@ -61,5 +81,20 @@ class ViewController: UIViewController {
             make.centerX.equalTo(currentValueLabel)
             make.top.equalTo(valueSlider).offset(50)
         }
+    }
+    
+    private func bindUI() {
+        self.viewModel.$currentValue
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] value in
+                self?.currentValueLabel.text = "\(value)"
+            }
+            .store(in: &cancellables)
+    }
+    
+    // MARK: - Private Methods
+    
+    @objc private func sliderValueDidChange(_ sender: UIControl) {
+        viewModel.currentValue = Int(valueSlider.value)
     }
 }
