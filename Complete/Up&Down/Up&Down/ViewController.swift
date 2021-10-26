@@ -36,6 +36,7 @@ class ViewController: UIViewController {
     
     // MARK: - Private Properteis
     
+    private let emitterLayer = CAEmitterLayer()
     private let viewModel: ViewModel
     
     private var cancellables: Set<AnyCancellable> = []
@@ -57,6 +58,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         self.configureUI()
         self.bindUI()
+        self.setUpEmitterLayer()
+        self.setUpTapGestureRecognizer()
     }
 
     // MARK: - Helpers
@@ -118,5 +121,47 @@ class ViewController: UIViewController {
             answerLabel.text = "오답"
             answerLabel.textColor = .red
         }
+    }
+    
+
+    private func setUpEmitterLayer() {
+        // layer에 뿌려질 셀
+        emitterLayer.emitterCells = [emojiEmiterCell]
+    }
+
+    private var emojiEmiterCell: CAEmitterCell {
+        let cell = CAEmitterCell()
+        cell.contents = UIImage(systemName: "heart.fill")?.cgImage
+        cell.lifetime = 3
+        cell.birthRate = 100
+        cell.scale = 0.5
+        cell.scaleRange = 0.05
+        cell.spin = 5
+        cell.spinRange = 10
+        cell.emissionRange = CGFloat.pi * 2
+        cell.velocity = 700
+        cell.velocityRange = 50
+        cell.yAcceleration = 1200
+        return cell
+    }
+
+    private func setUpTapGestureRecognizer() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(self.handleTap(_:)))
+        view.addGestureRecognizer(tap)
+        view.isUserInteractionEnabled = true
+    }
+
+    @objc func handleTap(_ sender: UITapGestureRecognizer) {
+        guard viewModel.isAnswer else { return }
+        let x = sender.location(in: view).x
+        let y = sender.location(in: view).y
+        
+        emitterLayer.emitterPosition = CGPoint(x: x, y: y)
+        emitterLayer.birthRate = 1
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) { [weak self] in
+            self?.emitterLayer.birthRate = 0
+        }
+        view.layer.addSublayer(emitterLayer)
     }
 }
