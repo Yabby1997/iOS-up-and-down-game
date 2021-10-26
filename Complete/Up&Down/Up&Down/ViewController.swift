@@ -17,14 +17,15 @@ class ViewController: UIViewController {
     
     private lazy var currentValueLabel = UILabel().then {
         $0.font = .systemFont(ofSize: 25, weight: .bold)
-        $0.text = "50"
+        $0.text = "10"
     }
     
     private lazy var valueSlider = UISlider().then {
-        $0.maximumValue = 100
+        $0.maximumValue = 20
         $0.minimumValue = 0
-        $0.value = 50
+        $0.value = 10
         $0.addTarget(self, action: #selector(sliderValueDidChange), for: .valueChanged)
+        $0.addTarget(self, action: #selector(sliderValueEditingDidEnd), for: .touchUpInside)
     }
     
     private lazy var answerLabel = UILabel().then {
@@ -90,11 +91,32 @@ class ViewController: UIViewController {
                 self?.currentValueLabel.text = "\(value)"
             }
             .store(in: &cancellables)
+        
+        self.viewModel.$isAnswer
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isAnswer in
+                self?.updateAnswerLabel(isAnswer: isAnswer)
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Private Methods
     
     @objc private func sliderValueDidChange(_ sender: UIControl) {
         viewModel.currentValue = Int(valueSlider.value)
+    }
+    
+    @objc private func sliderValueEditingDidEnd(_ sender: UIControl) {
+        viewModel.valueEdittingDidEnd()
+    }
+    
+    private func updateAnswerLabel(isAnswer: Bool) {
+        if isAnswer {
+            answerLabel.text = "정답!"
+            answerLabel.textColor = .systemGreen
+        } else {
+            answerLabel.text = "오답"
+            answerLabel.textColor = .red
+        }
     }
 }

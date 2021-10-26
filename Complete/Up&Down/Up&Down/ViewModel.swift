@@ -8,5 +8,23 @@
 import Foundation
 
 class ViewModel {
-    @Published var currentValue: Int = 50
+    
+    // MARK: - Private Properties
+    
+    private let upAndDownUseCase: UpAndDownUseCase
+    
+    // MARK: - Public Properties
+    
+    @Published var currentValue: Int = 10
+    @Published var isAnswer: Bool = false
+    
+    // MARK: - Initializers
+    
+    init(upAndDownUseCase: UpAndDownUseCase) {
+        self.upAndDownUseCase = upAndDownUseCase
+    }
+    
+    func valueEdittingDidEnd() {
+        isAnswer = upAndDownUseCase.guess(with: currentValue)
+    }
 }
