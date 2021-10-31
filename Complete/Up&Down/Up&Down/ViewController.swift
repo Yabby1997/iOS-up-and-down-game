@@ -38,13 +38,15 @@ class ViewController: UIViewController {
     
     private let emitterLayer = CAEmitterLayer()
     private let viewModel: ViewModel
+    private let coordinator: Coordinator
     
     private var cancellables: Set<AnyCancellable> = []
     
     // MARK: - Initializers
     
-    init(viewModel: ViewModel) {
+    init(viewModel: ViewModel, coordinator: Coordinator) {
         self.viewModel = viewModel
+        self.coordinator = coordinator
         super.init(nibName: nil, bundle: nil)
     }
     
