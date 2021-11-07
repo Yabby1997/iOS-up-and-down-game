@@ -38,13 +38,13 @@ class ViewController: UIViewController {
     
     private let emitterLayer = CAEmitterLayer()
     private let viewModel: ViewModel
-    private let coordinator: Coordinator
+    private let coordinator: BaseCoordinatorProtocol
     
     private var cancellables: Set<AnyCancellable> = []
     
     // MARK: - Initializers
     
-    init(viewModel: ViewModel, coordinator: Coordinator) {
+    init(viewModel: ViewModel, coordinator: BaseCoordinatorProtocol) {
         self.viewModel = viewModel
         self.coordinator = coordinator
         super.init(nibName: nil, bundle: nil)
@@ -125,9 +125,7 @@ class ViewController: UIViewController {
         }
     }
     
-
     private func setUpEmitterLayer() {
-        // layer에 뿌려질 셀
         emitterLayer.emitterCells = [emojiEmiterCell]
     }
 
@@ -155,10 +153,10 @@ class ViewController: UIViewController {
 
     @objc func handleTap(_ sender: UITapGestureRecognizer) {
         guard viewModel.isAnswer else { return }
-        let x = sender.location(in: view).x
-        let y = sender.location(in: view).y
+        let xCoordinator = sender.location(in: view).x
+        let yCoordinator = sender.location(in: view).y
         
-        emitterLayer.emitterPosition = CGPoint(x: x, y: y)
+        emitterLayer.emitterPosition = CGPoint(x: xCoordinator, y: yCoordinator)
         emitterLayer.birthRate = 1
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) { [weak self] in

@@ -7,11 +7,15 @@
 
 import UIKit
 
-final class AppCoordinator: Coordinator {
+final class AppCoordinator: BaseCoordinatorProtocol {
+    var presenter: UINavigationController
+    
+    init(presenter: UINavigationController) {
+        self.presenter = presenter
+    }
+    
     func start() {
-        let upAndDownUseCase = UpAndDownUseCase()
-        let viewModel = ViewModel(upAndDownUseCase: upAndDownUseCase)
-        let viewController = ViewController(viewModel: viewModel, coordinator: self)
-        self.navigationController?.pushViewController(viewController, animated: true)
+        let coordinator = ViewCoordinator(presenter: self.presenter)
+        coordinator.start()
     }
 }
